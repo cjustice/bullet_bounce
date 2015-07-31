@@ -14,8 +14,11 @@ var ship;
 var map;
 var layer;
 var cursors;
+var nextFire = 0;
+var fireRate = 0;
 
 function create() {
+    game.canvas.oncontextmenu = function (e) { e.preventDefault(); }
 
     game.physics.startSystem(Phaser.Physics.P2JS);
 
@@ -45,6 +48,8 @@ function create() {
 
     game.camera.follow(ship);
 
+    makeBullets();
+
     //  By default the ship will collide with the World bounds,
     //  however because you have changed the size of the world (via layer.resizeWorld) to match the tilemap
     //  you need to rebuild the physics world boundary as well. The following
@@ -54,14 +59,24 @@ function create() {
     game.physics.p2.setBoundsToWorld(true, true, true, true, false);
 
     //  Even after the world boundary is set-up you can still toggle if the ship collides or not with this:
-    // ship.body.collideWorldBounds = false;
+    //  ship.body.collideWorldBounds = false;
 
     cursors = game.input.keyboard.createCursorKeys();
-    mouse = game.input.mousePointer;
+}
+
+function makeBullets() {
+    //  Our bullet group
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.P2;
+    bullets.createMultiple(30, 'bullet', 0, false);
+    bullets.setAll('anchor.x', 0.5);
+    bullets.setAll('anchor.y', 0.5);
+    bullets.setAll('outOfBoundsKill', true);
+    bullets.setAll('checkWorldBounds', true);
 }
 
 function update() {
-    console.log(game.time.elapsed);
     ship.body.setZeroVelocity();
     ship.body.setZeroRotation();
     if (cursors.left.isDown) {
@@ -76,9 +91,28 @@ function update() {
     if (cursors.down.isDown) {
         ship.body.moveDown(300);
     }
+    if (game.input.mousePointer.isDown) {
+        ship.body.rotation += 200;
+    }
+    if (game.input.activePointer.isDown)
+    {
+        //  Boom!
+        fire();
+    }
+}
 
-    mouse_pos
-    ship.body.angle = - (game.math.angleBetween(ship.body.x, ship.body.y, mouse.x, mouse.y) * 180/Math.PI - 180);
+function fire () {
+
+    if (game.time.now > nextFire && bullets.countDead() > 0)
+    {
+        nextFire = game.time.now + fireRate;
+
+        var bullet = bullets.getFirstExists(false);
+
+        bullet.reset(ship.x, ship.y);
+        console.log("bullet");
+    }
+
 }
 
 function render() {

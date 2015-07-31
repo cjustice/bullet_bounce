@@ -127,8 +127,6 @@ function create () {
 
     //  This will force it to decelerate and limit its speed
     game.physics.enable(tank, Phaser.Physics.ARCADE);
-    game.physics.p2.enable(tank);
-
     tank.body.drag.set(0.2);
     tank.body.maxVelocity.setTo(400, 400);
     tank.body.collideWorldBounds = true;
@@ -223,25 +221,28 @@ function update () {
         }
     }
 
-    tank.body.setZeroVelocity();
-
-
-    if (cursors.up.isDown)
-    {
-        tank.body.moveUp(300)
-    }
-    else if (cursors.down.isDown)
-    {
-        tank.body.moveDown(300);
-    }
-
     if (cursors.left.isDown)
     {
-        tank.body.velocity.x = -300;
+        angle = 90;
+        currentSpeed = 300;
     }
     else if (cursors.right.isDown)
     {
-        tank.body.moveRight(300);
+        angle = 270;
+        currentSpeed = 300;
+    }
+
+    if (cursors.up.isDown)
+    {
+        //  The speed we'll travel at
+        currentSpeed = 300;
+    }
+    else
+    {
+        if (currentSpeed > 0)
+        {
+            currentSpeed -= 4;
+        }
     }
 
     if (currentSpeed > 0)
