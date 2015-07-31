@@ -57,10 +57,11 @@ function create() {
     // ship.body.collideWorldBounds = false;
 
     cursors = game.input.keyboard.createCursorKeys();
-
+    mouse = game.input.mousePointer;
 }
 
 function update() {
+    console.log(game.time.elapsed);
     ship.body.setZeroVelocity();
     ship.body.setZeroRotation();
     if (cursors.left.isDown) {
@@ -76,6 +77,8 @@ function update() {
         ship.body.moveDown(300);
     }
 
+    mouse_pos
+    ship.body.angle = - (game.math.angleBetween(ship.body.x, ship.body.y, mouse.x, mouse.y) * 180/Math.PI - 180);
 }
 
 function render() {
