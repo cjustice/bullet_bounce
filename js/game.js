@@ -12,8 +12,9 @@ var bullets;
 var fireRate = 100;
 var nextFire = 0;
 var currentSpeed = 0;
-var elapsed = 0;
 var angle = 0;
+var desired_movement = 100;
+var speed = 0;
 
 function create() {
 	game.world.setBounds(0, 0, 1920, 1920);
@@ -22,54 +23,33 @@ function create() {
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     mouse = game.input.mousePointer;
-
     player.anchor.set(.5);
+    //game.camera.follow(player);
 }
 
 function update() {
-    console.log(game.time.elapsed);
-
-    player.body.drag.set(0.2);
-    player.body.maxVelocity.setTo(400, 400);
-    player.body.collideWorldBounds = true;
-    player.bringToTop();
     game.time.advancedTiming = true;
-    game.time.desiredFps = 30;
-}
-
-function update() {
-	//player.body.setZeroVelocity();
-	elapsed = game.time.elapsed;
-	//adjust = (elapsed/60);
-	//console.log(adjust);
-    if (cursors.left.isDown)
-    {
-        player.body.x -= (.4 * elapsed);
-    }
-    if (cursors.right.isDown)
-    {
-        player.body.x += (.4 * elapsed);
-    }
-    if (cursors.up.isDown)
-    {
-        //  The speed we'll travel at
-        player.body.y -= (.4 * elapsed);
-    }
-    if (cursors.down.isDown)
-    {
-        //  The speed we'll travel at
-        player.body.y += (.4 * elapsed);
-    }
-    
     angle = -game.math.angleBetween(mouse.x,mouse.y, player.body.x, player.body.y) * 180/Math.PI;
-    // console.log(angle);
     player.body.rotation = angle;
-    // console.log(player.body.rotation)    
-
-
-
+    move_player();
 }
 
 function render() {
-	game.debug.text('FPS: ' + game.time.fps, 32, 32);
+    game.debug.text('FPS: ' + game.time.fps, 32, 32);
+}
+
+function move_player() {
+    speed = (desired_movement / game.time.elapsed);
+    if (cursors.left.isDown) {
+        player.body.x -= speed
+    }
+    if (cursors.right.isDown) {
+        player.body.x += speed;
+    }
+    if (cursors.up.isDown) {
+        player.body.y -= speed;
+    }
+    if (cursors.down.isDown) {
+        player.body.y += speed;
+    }
 }
