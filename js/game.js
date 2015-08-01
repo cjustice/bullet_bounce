@@ -20,7 +20,7 @@ var nextFire = 0;
 var currentSpeed = 0;
 var angle = 0;
 var desired_movement = 400;
-var bullet_speed = 30;
+var bullet_speed = 300;
 var speed = 0;
 var xVel,yVel;
 
@@ -45,8 +45,8 @@ function create() {
     player = game.add.sprite(100,100, 'player');
     game.physics.enable(player, Phaser.Physics.ARCADE);
 
-    player.body.height *= .9;
-    player.body.width *= .9;
+    player.body.height *= .8;
+    player.body.width *= .8;
 
     cursors = game.input.keyboard.createCursorKeys();
     mouse = game.input.mousePointer;
@@ -67,6 +67,8 @@ function create() {
     bullets.createMultiple(500, 'bullet', 0, false);
     bullets.setAll('anchor.x', 0.5);
     bullets.setAll('anchor.y', 0.5);
+    bullets.setAll('body.bounce.x', 1);
+    bullets.setAll('body.bounce.y', 1);
     bullets.setAll('outOfBoundsKill', true);
     bullets.setAll('checkWorldBounds', true);
     
@@ -74,13 +76,25 @@ function create() {
     game.camera.follow(player);
 }
 
+
+
 function update() {
     game.time.advancedTiming = true;
     move_player();
     player.rotation = game.physics.arcade.angleToPointer(player) + Math.PI/2;
     game.physics.arcade.collide(bullets, layer);
+
+    game.physics.arcade.overlap(layer, bullets, function(layer,bullet){
+        console.log("HERE");
+    });
+
+    game.physics.arcade.overlap(player, bullets, function(player,bullet){
+        player.kill();
+        bullet.kill();
+    });
     
 }
+
 
 
 
@@ -117,18 +131,20 @@ function move_player() {
 function shoot(xVel,yVel) {
     //console.log(xVel + ", " + yVel)
     if (game.time.now > nextFire && bullets.countDead() > 0)
-    {
+    {   
         nextFire = game.time.now + fireRate;
 
         var bullet = bullets.getFirstExists(false);
 
-        bullet.reset(player.body.x+16, player.body.y+16);
+        radius = 35;
+
+        bullet.reset(player.body.x+ 16 + radius*Math.cos(player.rotation - Math.PI/2), player.body.y+16 + radius*Math.sin(player.rotation - Math.PI/2));
 
         game.physics.arcade.moveToPointer(bullet, bullet_speed);
         bullet.body.velocity.x += xVel;
         bullet.body.velocity.y += yVel;
-        bullet.body.bounce.x = 1;
-        bullet.body.bounce.y = 1;
+        // bullet.body.bounce.x = 1;
+        // bullet.body.bounce.y = 1;
     }
 }
 
