@@ -3,13 +3,14 @@ var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload:
 function preload() {
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
     game.load.image('player','assets/sprites/blob-blue.png');
-    game.load.image('bullet', 'assets/games/tanks/bullet.png');
+    game.load.image('bullet', 'assets/sprites/bullet-blue.png');
 }
 
 var player;
 var cursors;
 var bullets;
-var fireRate = 100;
+var fireRate = 1000;
+var bullet_speed = 200;
 var nextFire = 0;
 var currentSpeed = 0;
 var angle = 0;
@@ -78,7 +79,16 @@ function move_player() {
 }
 
 function shoot() {
-    
+    if (game.time.now > nextFire && bullets.countDead() > 0)
+    {
+        nextFire = game.time.now + fireRate;
+
+        var bullet = bullets.getFirstExists(false);
+
+        bullet.reset(player.body.x+16, player.body.y+16);
+
+        bullet.rotation = game.physics.arcade.moveToPointer(bullet, bullet_speed);
+    }
 }
 
 function render() {
