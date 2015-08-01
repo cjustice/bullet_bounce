@@ -21,6 +21,8 @@ var angle = 0;
 var desired_movement = 100;
 var speed = 0;
 
+var wasd;
+
 function create() {
     map = game.add.tilemap('map');
     map.addTilesetImage('testtiles_1x1','first_tiles_1x1')
@@ -40,6 +42,13 @@ function create() {
     mouse = game.input.mousePointer;
     player.anchor.set(.5);
 
+    wasd = {
+                up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+                down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+                left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+                right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+    };
+
     //adding player bullets
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -51,39 +60,35 @@ function create() {
     bullets.setAll('checkWorldBounds', true);
     
 
-    //game.camera.follow(player);
+    game.camera.follow(player);
 }
 
 function update() {
     game.time.advancedTiming = true;
-    angle = -game.math.angleBetween(mouse.x,mouse.y, player.body.x, player.body.y) * 180/Math.PI;
-    player.body.rotation = angle;
     move_player();
+    player.rotation = game.physics.arcade.angleToPointer(player) + Math.PI/2;
 }
 
 function render() {
     game.debug.text('FPS: ' + game.time.fps, 32, 32);
+    // game.debug.text('HERE);
 }
 
 function move_player() {
     speed = (desired_movement / game.time.elapsed);
-    if (cursors.left.isDown) {
+    if (wasd.left.isDown) {
         player.body.x -= speed
     }
-    if (cursors.right.isDown) {
+    if (wasd.right.isDown) {
         player.body.x += speed;
     }
-    if (cursors.up.isDown) {
+    if (wasd.up.isDown) {
         player.body.y -= speed;
     }
-    if (cursors.down.isDown) {
+    if (wasd.down.isDown) {
         player.body.y += speed;
     }
-    
-    angle = -game.math.angleBetween(mouse.x,mouse.y, player.body.x, player.body.y) * 180/Math.PI;
-    // console.log(angle);
-    player.body.rotation = angle;
-    // console.log(player.body.rotation)    
+        
 
     if (mouse.isDown) {
         console.log ("shoot!");
