@@ -1,7 +1,7 @@
 var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
-    game.load.tilemap('map', 'assets/tilemaps/maps/big_square.json', null, Phaser.Tilemap.TILED_JSON)
+    game.load.tilemap('map', 'assets/tilemaps/maps/small_square.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
     game.load.image('player','assets/sprites/blob-blue.png');
@@ -114,10 +114,8 @@ function shoot(xVel,yVel) {
         bullet.reset(player.body.x+16, player.body.y+16);
 
         game.physics.arcade.moveToPointer(bullet, bullet_speed);
-        console.log(bullet.body.velocity.x);
         bullet.body.velocity.x += xVel;
         bullet.body.velocity.y += yVel;
-        console.log(bullet.body.velocity.x);
     }
 }
 
