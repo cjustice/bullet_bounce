@@ -1,14 +1,12 @@
 var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
-    game.load.tilemap('map', 'assets/tilemaps/maps/small_square.json', null, Phaser.Tilemap.TILED_JSON)
+    game.load.tilemap('map', 'assets/tilemaps/maps/big_square.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
     game.load.image('player','assets/sprites/blob-blue.png');
     game.load.image('bullet', 'assets/sprites/bullet-blue.png');
 }
-
-var debug = true;
 
 var map;
 var layer;
@@ -16,11 +14,11 @@ var player;
 var cursors;
 var bullets;
 var fireRate = 1000;
+var bullet_speed = 200;
 var nextFire = 0;
 var currentSpeed = 0;
 var angle = 0;
-var desired_movement = 100;
-var bullet_speed = 2 * desired_movement;
+var desired_movement = 30;
 var speed = 0;
 var xVel,yVel;
 
@@ -44,10 +42,6 @@ function create() {
     //game.add.tileSprite(0, 0, 1920, 1920, 'background');
     player = game.add.sprite(100,100, 'player');
     game.physics.enable(player, Phaser.Physics.ARCADE);
-
-    player.body.height *= .9;
-    player.body.width *= .9;
-
     cursors = game.input.keyboard.createCursorKeys();
     mouse = game.input.mousePointer;
     player.anchor.set(.5);
@@ -79,14 +73,21 @@ function update() {
     player.rotation = game.physics.arcade.angleToPointer(player) + Math.PI/2;
 }
 
-
+function render() {
+    game.debug.text('FPS: ' + game.time.fps, 32, 32);
+    
+}
 
 function move_player() {
+<<<<<<< HEAD
     game.physics.arcade.collide(player, layer);
 
+    speed = (desired_movement / game.time.elapsed);
+=======
     speed = (desired_movement);
     xVel = 0;
     yVel = 0;
+>>>>>>> master
     if (wasd.left.isDown) {
         xVel -= speed
     }
@@ -122,17 +123,16 @@ function shoot(xVel,yVel) {
         bullet.reset(player.body.x+16, player.body.y+16);
 
         game.physics.arcade.moveToPointer(bullet, bullet_speed);
+        console.log(bullet.body.velocity.x);
         bullet.body.velocity.x += xVel;
         bullet.body.velocity.y += yVel;
+        console.log(bullet.body.velocity.x);
     }
 }
 
 function render() {
+    game.debug.text('FPS: ' + game.time.fps, 32, 32);
 
-    if (debug){
-        game.debug.text('FPS: ' + game.time.fps, 32, 32);
-
-        game.debug.bodyInfo(player, 32, 50);
-        game.debug.body(player);
-    }
+    game.debug.bodyInfo(player, 32, 32);
+    game.debug.body(player);
 }
