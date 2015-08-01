@@ -7,6 +7,7 @@ app.use(express.static(__dirname));
 
 //we'll keep clients data here
 var clients = {};
+var idList = []
   
 //get EurecaServer class
 var Eureca = require('eureca.io');
@@ -31,9 +32,11 @@ eurecaServer.onConnect(function (conn) {
 	
 	//register the client
 	clients[conn.id] = {id:conn.id, remote:remote}
+	idList.push(conn.id);
+	console.log("idList: "+idList);
 	
 	//here we call setId (defined in the client side)
-	remote.setId(conn.id);	
+	remote.setId(conn.id, idList);	
 });
 
 //detect client disconnection
@@ -80,7 +83,7 @@ eurecaServer.exports.handshake = function()
 			var x = clients[cc].laststate ? clients[cc].laststate.x:  0;
 			var y = clients[cc].laststate ? clients[cc].laststate.y:  0;
 
-			remote.spawnEnemy(clients[cc].id, x, y);		
+			remote.spawnEnemy(clients[cc].id, x, y, idList);		
 		}
 	}
 }

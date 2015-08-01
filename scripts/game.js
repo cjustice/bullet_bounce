@@ -1,6 +1,7 @@
 //
 var player;
 var myId = 0;
+var idList;
 var cursors;
 var bullets;
 var fireRate = 100;
@@ -29,8 +30,9 @@ var eurecaClientSetup = function() {
     
     //methods defined under "exports" namespace become available in the server side
     
-    eurecaClient.exports.setId = function(id) 
+    eurecaClient.exports.setId = function(id, ids) 
     {
+        idList = ids;
         //create() is moved here to make sure nothing is created before uniq id assignation
         myId = id;
         create();
@@ -42,7 +44,7 @@ var eurecaClientSetup = function() {
     {
         if (shipsList[id])  {
             // shipsList[id].wasd = state;
-            console.log(state.x);
+            //console.log(state.x);
             shipsList[id].ship.body.velocity.x = state.x;
             shipsList[id].ship.body.velocity.y = state.y;            
             shipsList[id].ship.rotation = state.rotation;
@@ -59,12 +61,13 @@ var eurecaClientSetup = function() {
         }
     }   
     
-    eurecaClient.exports.spawnEnemy = function(i, x, y)
+    eurecaClient.exports.spawnEnemy = function(i, x, y, ids)
     {
-        
+        idList = ids;
         if (i == myId) return; //this is me
         
         console.log('SPAWN');
+        console.log(ship);
         var tnk = new Ship(i, game, ship);
         shipsList[i] = tnk;
     }
@@ -72,6 +75,7 @@ var eurecaClientSetup = function() {
 }
 
 Ship = function(index, game, player) {
+    console.log("index: "+index)
     this.input = {
         left:false,
         right:false,
@@ -88,7 +92,22 @@ Ship = function(index, game, player) {
     var y = 0;
     this.game = game;
     this.player = player;
-    this.ship = game.add.sprite(this.x,this.y,'shipred');
+    console.log("index: "+index+" of: "+idList)
+    switch(idList.indexOf(index)){
+        case 0: 
+            this.ship = game.add.sprite(this.x,this.y,'shipblue');
+            break;
+        case 1: 
+            this.ship = game.add.sprite(this.x,this.y,'shipred');
+            break;
+        case 2: 
+            this.ship = game.add.sprite(this.x,this.y,'shipgreen');
+            break;
+        case 3: 
+            this.ship = game.add.sprite(this.x,this.y,'shippurple');
+            break;
+        default: console.log("TOO MANY PLAYERS!");
+    }
     game.physics.enable(this.ship, Phaser.Physics.ARCADE);
     this.ship.anchor.set(0.5);
     this.ship.body.immovable = false;
@@ -134,7 +153,7 @@ Ship.prototype.update = function() {
             }
         }
         this.posVars.rotation = this.ship.rotation;
-        console.log("ID + " + myId);
+        //console.log("ID + " + myId);
        // console.log(this.posVars);
 
     eurecaServer.handleKeys(this.posVars);
@@ -148,8 +167,10 @@ var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce',
 function preload() {
     game.stage.disableVisibilityChange = true;
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
-    game.load.image('ship','assets/sprites/blob-blue.png');
+    game.load.image('shipblue','assets/sprites/blob-blue.png');
     game.load.image('shipred','assets/sprites/blob-red.png');
+    game.load.image('shipgreen','assets/sprites/blob-green.png');
+    game.load.image('shippurple','assets/sprites/blob-purple.png');
     game.load.image('bullet', 'assets/games/tanks/bullet.png');
 }
 
