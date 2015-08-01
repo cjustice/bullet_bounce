@@ -34,7 +34,7 @@ function create() {
 
     //game.physics.convertTilemap(map, layer);
 
-    game.world.setBounds(0, 0, 1920, 1920);
+    //game.world.setBounds(0, 0, 1920, 1920);
     //game.add.tileSprite(0, 0, 1920, 1920, 'background');
     player = game.add.sprite(0, 0, 'player');
     game.physics.enable(player, Phaser.Physics.ARCADE);
