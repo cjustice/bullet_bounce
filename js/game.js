@@ -15,12 +15,12 @@ var layer;
 var player;
 var cursors;
 var bullets;
-var fireRate = 1000;
+var fireRate = 100;
 var nextFire = 0;
 var currentSpeed = 0;
 var angle = 0;
-var desired_movement = 100;
-var bullet_speed = 2 * desired_movement;
+var desired_movement = 400;
+var bullet_speed = 30;
 var speed = 0;
 var xVel,yVel;
 
@@ -63,7 +63,8 @@ function create() {
     bullets = game.add.group();
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    bullets.createMultiple(30, 'bullet', 0, false);
+
+    bullets.createMultiple(500, 'bullet', 0, false);
     bullets.setAll('anchor.x', 0.5);
     bullets.setAll('anchor.y', 0.5);
     bullets.setAll('outOfBoundsKill', true);
@@ -77,6 +78,8 @@ function update() {
     game.time.advancedTiming = true;
     move_player();
     player.rotation = game.physics.arcade.angleToPointer(player) + Math.PI/2;
+    game.physics.arcade.collide(bullets, layer);
+    
 }
 
 
@@ -124,6 +127,8 @@ function shoot(xVel,yVel) {
         game.physics.arcade.moveToPointer(bullet, bullet_speed);
         bullet.body.velocity.x += xVel;
         bullet.body.velocity.y += yVel;
+        bullet.body.bounce.x = 1;
+        bullet.body.bounce.y = 1;
     }
 }
 
