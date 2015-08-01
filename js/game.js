@@ -24,6 +24,16 @@ function create() {
     mouse = game.input.mousePointer;
 
     player.anchor.set(.5);
+
+    //adding player bullets
+    bullets = game.add.group();
+    bullets.enableBody = true;
+    bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    bullets.createMultiple(30, 'bullet', 0, false);
+    bullets.setAll('anchor.x', 0.5);
+    bullets.setAll('anchor.y', 0.5);
+    bullets.setAll('outOfBoundsKill', true);
+    bullets.setAll('checkWorldBounds', true);
 }
 
 function update() {
@@ -66,8 +76,15 @@ function update() {
     player.body.rotation = angle;
     // console.log(player.body.rotation)    
 
+    if (mouse.isDown) {
+        console.log ("shoot!");
+        shoot();
+    }
 
+}
 
+function shoot() {
+    
 }
 
 function render() {
