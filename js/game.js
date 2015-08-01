@@ -2,7 +2,7 @@ var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload:
 
 function preload() {
 	game.load.image('background','assets/tests/debug-grid-1920x1920.png');
-    game.load.image('player','assets/sprites/phaser-dude.png');
+    game.load.image('player','assets/sprites/blob-blue.png');
     game.load.image('bullet', 'assets/games/tanks/bullet.png');
 }
 
