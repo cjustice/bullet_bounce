@@ -1,11 +1,15 @@
 var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
+    game.load.tilemap('map', 'assets/tilemaps/maps/big_square.json', null, Phaser.Tilemap.TILED_JSON)
+    game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
     game.load.image('player','assets/sprites/blob-blue.png');
     game.load.image('bullet', 'assets/sprites/bullet-blue.png');
 }
 
+var map;
+var layer;
 var player;
 var cursors;
 var bullets;
@@ -18,8 +22,18 @@ var desired_movement = 100;
 var speed = 0;
 
 function create() {
+    map = game.add.tilemap('map');
+    map.addTilesetImage('testtiles_1x1','first_tiles_1x1')
+
+    layer = map.createLayer('Tile Layer 1');
+    layer.resizeWorld();
+
+    map.setCollisionBetween(1, 12);
+
+    //game.physics.convertTilemap(map, layer);
+
     game.world.setBounds(0, 0, 1920, 1920);
-    game.add.tileSprite(0, 0, 1920, 1920, 'background');
+    //game.add.tileSprite(0, 0, 1920, 1920, 'background');
     player = game.add.sprite(0, 0, 'player');
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
@@ -87,7 +101,7 @@ function shoot() {
 
         bullet.reset(player.body.x+16, player.body.y+16);
 
-        bullet.rotation = game.physics.arcade.moveToPointer(bullet, bullet_speed);
+        bullet.velocity = game.physics.arcade.moveToPointer(bullet, bullet_speed);
     }
 }
 
