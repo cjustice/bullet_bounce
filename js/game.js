@@ -20,6 +20,7 @@ var currentSpeed = 0;
 var angle = 0;
 var desired_movement = 100;
 var speed = 0;
+var xVel,yVel;
 
 var wasd;
 
@@ -75,29 +76,35 @@ function render() {
 }
 
 function move_player() {
-    speed = (desired_movement / game.time.elapsed);
+    speed = (desired_movement);
+    xVel = 0;
+    yVel = 0;
     if (wasd.left.isDown) {
-        player.body.x -= speed
+        xVel -= speed
     }
     if (wasd.right.isDown) {
-        player.body.x += speed;
+        xVel += speed;
     }
     if (wasd.up.isDown) {
-        player.body.y -= speed;
+        yVel -= speed;
     }
     if (wasd.down.isDown) {
-        player.body.y += speed;
+        yVel += speed;
     }
+
+    player.body.velocity.x = xVel;
+    player.body.velocity.y = yVel;
         
 
     if (mouse.isDown) {
         console.log ("shoot!");
-        shoot();
+        shoot(xVel,yVel);
     }
 
 }
 
-function shoot() {
+function shoot(xVel,yVel) {
+    //console.log(xVel + ", " + yVel)
     if (game.time.now > nextFire && bullets.countDead() > 0)
     {
         nextFire = game.time.now + fireRate;
@@ -106,7 +113,11 @@ function shoot() {
 
         bullet.reset(player.body.x+16, player.body.y+16);
 
-        bullet.velocity = game.physics.arcade.moveToPointer(bullet, bullet_speed);
+        game.physics.arcade.moveToPointer(bullet, bullet_speed);
+        console.log(bullet.body.velocity.x);
+        bullet.body.velocity.x += xVel;
+        bullet.body.velocity.y += yVel;
+        console.log(bullet.body.velocity.x);
     }
 }
 
