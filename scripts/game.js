@@ -45,7 +45,7 @@ var eurecaClientSetup = function() {
             console.log(state.x);
             shipsList[id].ship.body.velocity.x = state.x;
             shipsList[id].ship.body.velocity.y = state.y;            
-            shipsList[id].ship.body.angle = state.angle;
+            shipsList[id].ship.rotation = state.rotation;
             // shipsList[id].turret.rotation = state.rot;
             // shipsList[id].update();
         }
@@ -53,9 +53,9 @@ var eurecaClientSetup = function() {
 
     eurecaClient.exports.kill = function(id)
     {   
-        if (tanksList[id]) {
-            tanksList[id].kill();
-            console.log('killing ', id, tanksList[id]);
+        if (shipsList[id]) {
+            shipsList[id].kill();
+            console.log('killing ', id, shipsList[id]);
         }
     }   
     
@@ -98,7 +98,7 @@ Ship = function(index, game, player) {
     this.posVars = {
         x: 0,
         y: 0,
-        angle: 0
+        rotation: 0
     };
     this.curX = 0;
     this.curY = 0;
@@ -133,9 +133,11 @@ Ship.prototype.update = function() {
                 this.posVars.y += 5;
             }
         }
+        this.posVars.rotation = this.ship.rotation;
         console.log("ID + " + myId);
        // console.log(this.posVars);
-        eurecaServer.handleKeys(this.posVars);
+
+    eurecaServer.handleKeys(this.posVars);
     }
     //this.posVars.angle = this.ship.body.angle;
 }
@@ -175,8 +177,8 @@ function create() {
 function update() {
     if (ready) { 
         game.time.advancedTiming = true;
-        angle = -game.math.angleBetween(mouse.x - game.camera.x,mouse.y-game.camera.y, ship.body.x, ship.body.y) * 180/Math.PI;
-        ship.body.rotation = angle;
+        angle = game.math.angleBetween(mouse.x - game.camera.x,mouse.y-game.camera.y, ship.body.x, ship.body.y)
+        ship.rotation = angle;
         move_players();
     }
 }
