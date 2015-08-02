@@ -4,7 +4,7 @@ function preload() {
     game.load.tilemap('map', 'assets/tilemaps/maps/small_square.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
-    game.load.image('player','assets/sprites/blob-blue.png');
+    game.load.image('shipblue','assets/sprites/blob-blue.png');
     game.load.image('bullet', 'assets/sprites/bullet-blue.png');
 }
 
@@ -23,47 +23,37 @@ var desired_movement = 400;
 var bullet_speed = 300;
 var speed = 0;
 var xVel,yVel;
-
 var wasd;
+var ship;
 
-function create() {
-    map = game.add.tilemap('map');
-    map.addTilesetImage('testtiles_1x1','first_tiles_1x1')
-
-    map.setCollisionBetween(1, 12);
-
-    layer = map.createLayer('Tile Layer 1');
-    layer.resizeWorld();
-    game.add.existing(layer);
-
-    
-
-    //game.physics.convertTilemap(map, layer);
-
-    //game.world.setBounds(0, 0, 1920, 1920);
-    //game.add.tileSprite(0, 0, 1920, 1920, 'background');
-    player = game.add.sprite(100,100, 'player');
-    game.physics.enable(player, Phaser.Physics.ARCADE);
-
-    player.body.height *= .8;
-    player.body.width *= .8;
-
-    cursors = game.input.keyboard.createCursorKeys();
-    mouse = game.input.mousePointer;
-    player.anchor.set(.5);
-
-    wasd = {
-                up: game.input.keyboard.addKey(Phaser.Keyboard.W),
-                down: game.input.keyboard.addKey(Phaser.Keyboard.S),
-                left: game.input.keyboard.addKey(Phaser.Keyboard.A),
-                right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+function Ship(index, game, player) {
+    this.input = {
+        left:false,
+        right:false,
+        up:false,
+        down:false
     };
-
+    this.wasd = {
+        left:false,
+        right:false,
+        up:false,
+        down:false        
+    };
+    this.game = game;
+    this.player = player;
+    this.ship = game.add.sprite(100,100,'shipblue');
+    game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+    this.ship.anchor.set(0.5);
+    this.ship.body.immovable = false;
+    this.ship.body.collideWorldBounds = true;
+    this.ship.body.bounce.setTo(0, 0);
+    this.id = index;
+    this.ship.body.height *= .8;
+    this.ship.body.width *= .8;
     //adding player bullets
     bullets = game.add.group();
     bullets.enableBody = true;
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
-
     bullets.createMultiple(500, 'bullet', 0, false);
     bullets.setAll('anchor.x', 0.5);
     bullets.setAll('anchor.y', 0.5);
@@ -71,9 +61,26 @@ function create() {
     bullets.setAll('body.bounce.y', 1);
     bullets.setAll('outOfBoundsKill', true);
     bullets.setAll('checkWorldBounds', true);
-    
+}
 
-    game.camera.follow(player);
+function create() {
+    map = game.add.tilemap('map');
+    map.addTilesetImage('testtiles_1x1','first_tiles_1x1')
+    map.setCollisionBetween(1, 12);
+    layer = map.createLayer('Tile Layer 1');
+    layer.resizeWorld();
+    game.add.existing(layer);
+    player = new Ship(10, game, ship);
+    cursors = game.input.keyboard.createCursorKeys();
+    mouse = game.input.mousePointer;
+    wasd = {
+        up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+        down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+        left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+        right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+    };
+
+    game.camera.follow(player.ship);
 }
 
 
@@ -81,17 +88,17 @@ function create() {
 function update() {
     game.time.advancedTiming = true;
     move_player();
-    player.rotation = game.physics.arcade.angleToPointer(player) + Math.PI/2;
+    player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
     game.physics.arcade.collide(bullets, layer);
 
     game.physics.arcade.overlap(layer, bullets, function(layer,bullet){
         console.log("HERE");
     });
 
-    game.physics.arcade.overlap(player, bullets, function(player,bullet){
-        player.kill();
-        bullet.kill();
-    });
+    // game.physics.arcade.overlap(player.ship, bullets, function(player,bullet){
+    //     player.kill();
+    //     bullet.kill();
+    // });
     
 }
 
@@ -99,8 +106,7 @@ function update() {
 
 
 function move_player() {
-    game.physics.arcade.collide(player, layer);
-
+    game.physics.arcade.collide(player.ship, layer);
     speed = (desired_movement);
     xVel = 0;
     yVel = 0;
@@ -117,9 +123,8 @@ function move_player() {
         yVel += speed;
     }
 
-    player.body.velocity.x = xVel;
-    player.body.velocity.y = yVel;
-        
+    player.ship.body.velocity.x = xVel;
+    player.ship.body.velocity.y = yVel;
 
     if (mouse.isDown) {
         console.log ("shoot!");
@@ -136,24 +141,24 @@ function shoot(xVel,yVel) {
 
         var bullet = bullets.getFirstExists(false);
 
-        radius = 35;
+        radius = 20;
 
-        bullet.reset(player.body.x+ 16 + radius*Math.cos(player.rotation - Math.PI/2), player.body.y+16 + radius*Math.sin(player.rotation - Math.PI/2));
+        bullet.reset(player.ship.body.center.x,player.ship.body.center.y);
+        //bullet.reset(player.ship.body.x+ 16 + radius*Math.cos(player.ship.rotation - Math.PI/2), player.ship.body.y+16 + radius*Math.sin(player.ship.rotation - Math.PI/2));
 
         game.physics.arcade.moveToPointer(bullet, bullet_speed);
-        bullet.body.velocity.x += xVel;
-        bullet.body.velocity.y += yVel;
+        //bullet.body.velocity.x += xVel;
+        //bullet.body.velocity.y += yVel;
         // bullet.body.bounce.x = 1;
         // bullet.body.bounce.y = 1;
     }
 }
 
 function render() {
-
     if (debug){
         game.debug.text('FPS: ' + game.time.fps, 32, 32);
 
-        game.debug.bodyInfo(player, 32, 50);
-        game.debug.body(player);
+        game.debug.bodyInfo(player.ship, 32, 50);
+        game.debug.body(player.ship);
     }
 }
