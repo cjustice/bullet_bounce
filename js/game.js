@@ -1,4 +1,62 @@
-var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: create, update: update, render: render });
+var ready = false;
+var eurecaServer;
+var state;
+//this function will handle client communication with the server
+var eurecaClientSetup = function() {
+    //create an instance of eureca.io client
+    var eurecaClient = new Eureca.Client();
+    
+    eurecaClient.ready(function (proxy) {       
+        eurecaServer = proxy;
+    });
+    
+    //methods defined under "exports" namespace become available in the server side
+    
+    eurecaClient.exports.setId = function(id) 
+    {
+        //create() is moved here to make sure nothing is created before uniq id assignation
+        myId = id;
+        create();
+        eurecaServer.handshake();
+        ready = true;
+    }   
+    
+    eurecaClient.exports.kill = function(id)
+    {   
+        if (shipsList[id]) {
+            shipsList[id].ship.kill();
+            console.log('killing ', id, shipsList[id]);
+        }
+    }   
+    
+    eurecaClient.exports.spawnEnemy = function(i, x, y)
+    {
+        if (i == myId) return; //this is me
+        
+        console.log('SPAWN');
+        var shp = new Ship(i, game, ship);
+        shipsList[i] = shp;
+    }
+
+    eurecaClient.exports.updateState = function(id, state)
+    {      
+        // console.log("running updateState");
+        // console.log(shipsList);
+        // console.log(myId);
+        if (shipsList[id])  {
+            shipsList[id].wasd = state;
+            console.log("Updating + " + id + " with " + state.x + ", " + state.y)
+            shipsList[id].ship.body.x = state.x;
+            shipsList[id].ship.body.y = state.y;
+            //console.log("ShipsList"+id+ "is getting x: " + state.x + "y: " + state.y);
+            shipsList[id].ship.rotation = state.rotation;
+            // shipsList[id].turret.rotation = state.rot;
+            shipsList[id].update();
+        }
+    }
+}
+
+var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload() {
     game.load.tilemap('map', 'assets/tilemaps/maps/small_square.json', null, Phaser.Tilemap.TILED_JSON)
@@ -13,6 +71,7 @@ var debug = true;
 var map;
 var layer;
 var player;
+var myId = 0;
 var cursors;
 var bullets;
 var fireRate = 100;
@@ -31,23 +90,27 @@ function Ship(index, game, player) {
         left:false,
         right:false,
         up:false,
-        down:false
+        down:false,
+        fire: false
     };
     this.wasd = {
         left:false,
         right:false,
         up:false,
-        down:false        
+        down:false,
+        fire: false      
     };
     this.game = game;
     this.player = player;
-    this.ship = game.add.sprite(100,100,'shipblue');
+    var x = 100;
+    var y = 100;
+    this.ship = game.add.sprite(x,y,'shipblue');
     game.physics.enable(this.ship, Phaser.Physics.ARCADE);
     this.ship.anchor.set(0.5);
     this.ship.body.immovable = false;
     this.ship.body.collideWorldBounds = true;
     this.ship.body.bounce.setTo(0, 0);
-    this.id = index;
+    this.ship.id = index;
     this.ship.body.height *= .8;
     this.ship.body.width *= .8;
     //adding player bullets
@@ -64,15 +127,41 @@ function Ship(index, game, player) {
     this.speed = 400;
 }
 
+Ship.prototype.update = function() {
+    //console.log(this.ship.body.velocity);
+
+    xVel = 0;
+    yVel = 0;
+    if (this.wasd.left) {
+        xVel -= this.speed
+        console.log("left")
+    }
+    if (this.wasd.right) {
+        xVel += this.speed;
+    }
+    if (this.wasd.up) {
+        yVel -= this.speed;
+    }
+    if (this.wasd.down) {
+        yVel += this.speed;
+    }
+    this.ship.body.velocity.x = xVel;
+    this.ship.body.velocity.y = yVel;
+    if (mouse.isDown) {
+        this.shoot(xVel,yVel);
+    }
+}
+
 function create() {
+    game.stage.disableVisibilityChange  = true;
     map = game.add.tilemap('map');
     map.addTilesetImage('testtiles_1x1','first_tiles_1x1')
     map.setCollisionBetween(1, 12);
     layer = map.createLayer('Tile Layer 1');
     layer.resizeWorld();
     game.add.existing(layer);
-    player = new Ship(10, game, ship);
-    shipsList[10] = player;
+    player = new Ship(myId, game, ship);
+    shipsList[myId] = player;
     cursors = game.input.keyboard.createCursorKeys();
     mouse = game.input.mousePointer;
     wasd = {
@@ -88,21 +177,46 @@ function create() {
 
 
 function update() {
+    if (!ready) return;
     for (var i in shipsList) game.physics.arcade.collide(shipsList[i].ship, layer);
-    for (var i in shipsList) move_player(shipsList[i]);
     game.time.advancedTiming = true;
-    //move_players();
     game.physics.arcade.collide(bullets, layer);
-
     game.physics.arcade.overlap(layer, bullets, function(layer,bullet){
-        console.log("HERE");
+        //console.log("HERE");
     });
+    //for (var i in shipsList) move_player(shipsList[i]);
+    player.input.left = wasd.left.isDown;
+    player.input.right = wasd.right.isDown;
+    player.input.up = wasd.up.isDown;
+    player.input.down = wasd.down.isDown;
+    player.input.fire = mouse.isDown;
+    player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2
 
-    // game.physics.arcade.overlap(player.ship, bullets, function(player,bullet){
-    //     player.kill();
-    //     bullet.kill();
-    // });
-    
+        var inputChanged = (
+        player.wasd.left != player.input.left ||
+        player.wasd.right != player.input.right ||
+        player.wasd.up != player.input.up ||
+        player.wasd.down != player.input.fire ||
+        player.wasd.fire != player.input.fire
+    );
+    //if (inputChanged) {
+        //Handle input change here
+        //send new values to the server
+        //console.log("Updating server");
+            // send latest valid state to the server
+        player.input.x = player.ship.x - (player.ship.width*player.ship.anchor.x*.8);
+        player.input.y = player.ship.y - (player.ship.height*player.ship.anchor.y*.8);
+        player.input.rotation = player.ship.rotation;
+        eurecaServer.handleKeys(player.input);
+        //console.log(player.input);
+    //}
+
+    //for (var i in shipsList) shipsList[i].update();
+
+        // game.physics.arcade.overlap(player.ship, bullets, function(player,bullet){
+        //     player.kill();
+        //     bullet.kill();
+        // });
 }
 
 function move_player(plyr) {
@@ -128,7 +242,7 @@ function move_player(plyr) {
         //console.log ("shoot!");
         plyr.shoot(xVel,yVel);
     }
-    plyr.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
+    //plyr.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
 }
 
 // function move_players() {
@@ -176,6 +290,7 @@ Ship.prototype.shoot = function(xVel,yVel) {
 }
 
 function render() {
+    if (!ready) return;
     if (debug){
         game.debug.text('FPS: ' + game.time.fps, 32, 32);
 
