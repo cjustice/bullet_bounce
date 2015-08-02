@@ -15,6 +15,7 @@ var main_game = function(game){
     yVel = 0;
     debug = true;
     wasd = null;
+    kill = false;
 }
 
 main_game.prototype = {
@@ -73,8 +74,6 @@ main_game.prototype = {
         this.game.camera.follow(player);
     },
 
-
-
     update: function(){
         this.game.time.advancedTiming = true;
         this.move_player();
@@ -83,17 +82,22 @@ main_game.prototype = {
 
         this.game.physics.arcade.overlap(layer, bullets, function(layer,bullet){
             console.log("HERE");
+
         });
 
-        this.game.physics.arcade.overlap(player, bullets, function(player,bullet){
-            player.kill();
-            bullet.kill();
-        });
-        
+        this.game.physics.arcade.overlap(player, bullets, function(player,bullets){kill=true});
+        if (kill){
+            this.bullet_hits_player(player,bullets);
+            kill=false;
+        };
     },
 
-
-
+    bullet_hits_player: function(player, bullet){
+        player.kill();
+        // bullet.kill();
+        console.log(this);
+        this.game.state.start("MainMenu");
+    },
 
     move_player: function(){
         this.game.physics.arcade.collide(player, layer);
