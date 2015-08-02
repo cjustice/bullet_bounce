@@ -2,13 +2,13 @@
 <html lang="en"> 
 <head> 
 	<meta charset="UTF-8" />
-	<title>Phaser - Making your first game, part 1</title>
+	<title>Bullet Bounce Game</title>
 	<script type="text/javascript" src="js/phaser.min.js"></script>
     
     <script src="js/boot.js"></script>
     <script src="js/preload.js"></script>
     <script src="js/main_menu.js"></script>
-    
+    <script src="js/game.js"></script>
     <script src="js/game_over.js"></script> 
 
     <style type="text/css">
@@ -26,7 +26,7 @@
         game.state.add("Boot", boot);
         game.state.add("Preload",preload);
         game.state.add("MainMenu",main_menu);
-        // game.state.add("Game",game);
+        game.state.add("Game",game);
         // game.state.add("GameOver",game_over);
 
         game.state.start("Boot");
