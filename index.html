@@ -4,6 +4,13 @@
 	<meta charset="UTF-8" />
 	<title>Phaser - Making your first game, part 1</title>
 	<script type="text/javascript" src="js/phaser.min.js"></script>
+    
+    <script src="js/boot.js"></script>
+    <script src="js/preload.js"></script>
+    <script src="js/main_menu.js"></script>
+    
+    <script src="js/game_over.js"></script> 
+
     <style type="text/css">
         body {
             margin: 0;
@@ -12,7 +19,19 @@
 </head>
 <body>
 
-<script type="text/javascript" src="js/game.js">
+<script type="text/javascript">
+    (function(){
+        var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce');
+
+        game.state.add("Boot", boot);
+        game.state.add("Preload",preload);
+        game.state.add("MainMenu",main_menu);
+        // game.state.add("Game",game);
+        // game.state.add("GameOver",game_over);
+
+        game.state.start("Boot");
+    })();
+
 </script>
 
 </body>

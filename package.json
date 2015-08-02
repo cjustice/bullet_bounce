@@ -1,0 +1,10 @@
+{
+  "name": "bullet_bounce",
+  "version": "0.0.1",
+  "description": "bullet_bounce",
+  "dependencies": {
+    "engine.io": "^1.5.2",
+    "eureca.io": "^0.6.41",
+    "express": "^4.10.2"
+  }
+}

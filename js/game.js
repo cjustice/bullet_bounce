@@ -1,5 +1,21 @@
-var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: create, update: update, render: render });
+var Game = function(){
+    var map;
+    var layer;
+    var player;
+    var cursors;
+    var bullets;
+    var fireRate = 100;
+    var nextFire = 0;
+    var currentSpeed = 0;
+    var angle = 0;
+    var desired_movement = 400;
+    var bullet_speed = 300;
+    var speed = 0;
+    var xVel,yVel;
 
+}
+
+Game.prototype{
 function preload() {
     game.load.tilemap('map', 'assets/tilemaps/maps/small_square.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
@@ -156,4 +172,6 @@ function render() {
         game.debug.bodyInfo(player, 32, 50);
         game.debug.body(player);
     }
+}
+
 }
