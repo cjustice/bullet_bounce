@@ -32,9 +32,11 @@ var eurecaClientSetup = function() {
     eurecaClient.exports.spawnEnemy = function(i, x, y)
     {
         if (i == myId) return; //this is me
-        
+        console.log("New enemy at "+x+", "+y);
         console.log('SPAWN');
-        var shp = new Ship(i, game, ship);
+        var shp = new Ship(i, game, ship, x+(player.ship.width*player.ship.anchor.x*.8), y+(player.ship.width*player.ship.anchor.x*.8));
+        // shp.wasd.x = x;
+        // shp.wasd.y = y;
         shipsList[i] = shp;
     }
 
@@ -45,7 +47,7 @@ var eurecaClientSetup = function() {
         // console.log(myId);
         if (shipsList[id])  {
             shipsList[id].wasd = state;
-            console.log("Updating + " + id + " with " + state.x + ", " + state.y)
+            //console.log("Updating + " + id + " with " + state.x + ", " + state.y)
             shipsList[id].ship.body.x = state.x;
             shipsList[id].ship.body.y = state.y;
             //console.log("ShipsList"+id+ "is getting x: " + state.x + "y: " + state.y);
@@ -85,7 +87,7 @@ var wasd;
 var ship;
 var shipsList = {};
 
-function Ship(index, game, player) {
+function Ship(index, game, player, startX, startY) {
     this.input = {
         left:false,
         right:false,
@@ -102,8 +104,8 @@ function Ship(index, game, player) {
     };
     this.game = game;
     this.player = player;
-    var x = 100;
-    var y = 100;
+    var x = startX;
+    var y = startY;
     this.ship = game.add.sprite(x,y,'shipblue');
     game.physics.enable(this.ship, Phaser.Physics.ARCADE);
     this.ship.anchor.set(0.5);
@@ -129,7 +131,8 @@ function Ship(index, game, player) {
 
 Ship.prototype.update = function() {
     //console.log(this.ship.body.velocity);
-
+    this.ship.body.x = this.wasd.x;
+    this.ship.body.y = this.wasd.y;
     xVel = 0;
     yVel = 0;
     if (this.wasd.left) {
@@ -160,7 +163,7 @@ function create() {
     layer = map.createLayer('Tile Layer 1');
     layer.resizeWorld();
     game.add.existing(layer);
-    player = new Ship(myId, game, ship);
+    player = new Ship(myId, game, ship, 200, 200);
     shipsList[myId] = player;
     cursors = game.input.keyboard.createCursorKeys();
     mouse = game.input.mousePointer;
@@ -192,7 +195,7 @@ function update() {
     player.input.fire = mouse.isDown;
     player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2
 
-        var inputChanged = (
+    var inputChanged = (
         player.wasd.left != player.input.left ||
         player.wasd.right != player.input.right ||
         player.wasd.up != player.input.up ||
