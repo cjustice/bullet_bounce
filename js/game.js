@@ -19,12 +19,12 @@ var fireRate = 100;
 var nextFire = 0;
 var currentSpeed = 0;
 var angle = 0;
-var desired_movement = 400;
 var bullet_speed = 300;
 var speed = 0;
 var xVel,yVel;
 var wasd;
 var ship;
+var shipsList = {};
 
 function Ship(index, game, player) {
     this.input = {
@@ -61,6 +61,7 @@ function Ship(index, game, player) {
     bullets.setAll('body.bounce.y', 1);
     bullets.setAll('outOfBoundsKill', true);
     bullets.setAll('checkWorldBounds', true);
+    this.speed = 400;
 }
 
 function create() {
@@ -71,6 +72,7 @@ function create() {
     layer.resizeWorld();
     game.add.existing(layer);
     player = new Ship(10, game, ship);
+    shipsList[10] = player;
     cursors = game.input.keyboard.createCursorKeys();
     mouse = game.input.mousePointer;
     wasd = {
@@ -86,9 +88,10 @@ function create() {
 
 
 function update() {
+    for (var i in shipsList) game.physics.arcade.collide(shipsList[i].ship, layer);
+    for (var i in shipsList) move_player(shipsList[i]);
     game.time.advancedTiming = true;
-    move_player();
-    player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
+    //move_players();
     game.physics.arcade.collide(bullets, layer);
 
     game.physics.arcade.overlap(layer, bullets, function(layer,bullet){
@@ -102,36 +105,58 @@ function update() {
     
 }
 
-
-
-
-function move_player() {
-    game.physics.arcade.collide(player.ship, layer);
-    speed = (desired_movement);
+function move_player(plyr) {
     xVel = 0;
     yVel = 0;
     if (wasd.left.isDown) {
-        xVel -= speed
+        xVel -= plyr.speed
     }
     if (wasd.right.isDown) {
-        xVel += speed;
+        xVel += plyr.speed;
     }
     if (wasd.up.isDown) {
-        yVel -= speed;
+        yVel -= plyr.speed;
     }
     if (wasd.down.isDown) {
-        yVel += speed;
+        yVel += plyr.speed;
     }
 
-    player.ship.body.velocity.x = xVel;
-    player.ship.body.velocity.y = yVel;
+    plyr.ship.body.velocity.x = xVel;
+    plyr.ship.body.velocity.y = yVel;
 
     if (mouse.isDown) {
         //console.log ("shoot!");
-        player.shoot(xVel,yVel);
+        plyr.shoot(xVel,yVel);
     }
-
+    plyr.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
 }
+
+// function move_players() {
+//     //speed = 400;
+//     xVel = 0;
+//     yVel = 0;
+//     if (wasd.left.isDown) {
+//         xVel -= player.speed
+//     }
+//     if (wasd.right.isDown) {
+//         xVel += player.speed;
+//     }
+//     if (wasd.up.isDown) {
+//         yVel -= player.speed;
+//     }
+//     if (wasd.down.isDown) {
+//         yVel += player.speed;
+//     }
+
+//     player.ship.body.velocity.x = xVel;
+//     player.ship.body.velocity.y = yVel;
+
+//     if (mouse.isDown) {
+//         //console.log ("shoot!");
+//         player.shoot(xVel,yVel);
+//     }
+//     player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
+// }
 
 Ship.prototype.shoot = function(xVel,yVel) {
     //console.log(xVel + ", " + yVel)
