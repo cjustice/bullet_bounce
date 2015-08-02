@@ -8,11 +8,16 @@ var main_game = function(game){
     nextFire = 0;
     currentSpeed = 0;
     angle = 0;
-    desired_movement = 400;
-    bullet_speed = 300;
+    
+    accel_rate = 10000;
+    drag = 2000;
+    desired_movement = 200;
+
+
+    bullet_speed = 1.5*desired_movement;
     speed = 0;
-    xVel = 0;
-    yVel = 0;
+    xacc = 0;
+    yacc = 0;
     debug = true;
     wasd = null;
     kill = false;
@@ -43,12 +48,17 @@ main_game.prototype = {
         player = this.game.add.sprite(100,100, 'player');
         this.game.physics.enable(player, Phaser.Physics.ARCADE);
 
-        player.body.height *= .8;
-        player.body.width *= .8;
+        player.body.height *= .6;
+        player.body.width *= .6;
+        player.anchor.set(.5);
+        player.body.maxVelocity.x=desired_movement;
+        player.body.maxVelocity.y=desired_movement;
+        player.body.drag.x=drag;
+        player.body.drag.y=drag;
+
 
         cursors = this.game.input.keyboard.createCursorKeys();
         mouse = this.game.input.mousePointer;
-        player.anchor.set(.5);
 
         wasd = {
                     up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
@@ -102,29 +112,28 @@ main_game.prototype = {
     move_player: function(){
         this.game.physics.arcade.collide(player, layer);
 
-        speed = (desired_movement);
-        xVel = 0;
-        yVel = 0;
+        xacc = 0;
+        yacc = 0;
         if (wasd.left.isDown) {
-            xVel -= speed
+            xacc -= accel_rate
         }
         if (wasd.right.isDown) {
-            xVel += speed;
+            xacc += accel_rate;
         }
         if (wasd.up.isDown) {
-            yVel -= speed;
+            yacc -= accel_rate;
         }
         if (wasd.down.isDown) {
-            yVel += speed;
+            yacc += accel_rate;
         }
 
-        player.body.velocity.x = xVel;
-        player.body.velocity.y = yVel;
+        player.body.acceleration.x = xacc;
+        player.body.acceleration.y = yacc;
             
 
         if (mouse.isDown) {
             console.log ("shoot!");
-            this.shoot(xVel,yVel);
+            this.shoot(player.body.velocity.x, player.body.velocity.y);
         }
 
     },
@@ -142,8 +151,8 @@ main_game.prototype = {
             bullet.reset(player.body.x+ 16 + radius*Math.cos(player.rotation - Math.PI/2), player.body.y+16 + radius*Math.sin(player.rotation - Math.PI/2));
 
             this.game.physics.arcade.moveToPointer(bullet, bullet_speed);
-            bullet.body.velocity.x += xVel;
-            bullet.body.velocity.y += yVel;
+            bullet.body.velocity.x += 0.1*xVel;
+            bullet.body.velocity.y += 0.1*yVel;
             // bullet.body.bounce.x = 1;
             // bullet.body.bounce.y = 1;
         }

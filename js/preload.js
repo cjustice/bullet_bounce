@@ -8,7 +8,7 @@ preload.prototype = {
       // menu
       this.game.load.image('play', 'assets/buttons/Play-button.gif');
       // main game
-      this.game.load.tilemap('map', 'assets/tilemaps/maps/small_square.json', null, Phaser.Tilemap.TILED_JSON)
+      this.game.load.tilemap('map', 'assets/tilemaps/maps/big_square.json', null, Phaser.Tilemap.TILED_JSON)
       this.game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
       this.game.load.image('background','assets/tests/debug-grid-1920x1920.png');
       this.game.load.image('player','assets/sprites/blob-blue.png');
