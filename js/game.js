@@ -42,18 +42,20 @@ var eurecaClientSetup = function() {
 
     eurecaClient.exports.updateState = function(id, state)
     {      
-        // console.log("running updateState");
+        console.log("running updateState");
         // console.log(shipsList);
         // console.log(myId);
         if (shipsList[id])  {
-            shipsList[id].wasd = state;
+            shipsList[id].input = state;
             //console.log("Updating + " + id + " with " + state.x + ", " + state.y)
-            shipsList[id].ship.body.x = state.x;
-            shipsList[id].ship.body.y = state.y;
+            //shipsList[id].ship.body.x = state.x;
+            //shipsList[id].ship.body.y = state.y;
+            //shipsList[id].ship.x = state.x;
+            //shipsList[id].ship.y = state.y;
             //console.log("ShipsList"+id+ "is getting x: " + state.x + "y: " + state.y);
-            shipsList[id].ship.rotation = state.rotation;
+            //shipsList[id].ship.rotation = state.rotation;
             // shipsList[id].turret.rotation = state.rot;
-            shipsList[id].update();
+            //shipsList[id].update();
         }
     }
 }
@@ -87,20 +89,24 @@ var wasd;
 var ship;
 var shipsList = {};
 
+var refreshXY = 0;
+
 function Ship(index, game, player, startX, startY) {
     this.input = {
         left:false,
         right:false,
         up:false,
         down:false,
-        fire: false
+        fire: false,
+        rotation: 0
     };
     this.wasd = {
         left:false,
         right:false,
         up:false,
         down:false,
-        fire: false      
+        fire: false,
+        rotation: 0
     };
     this.game = game;
     this.player = player;
@@ -126,30 +132,36 @@ function Ship(index, game, player, startX, startY) {
     bullets.setAll('body.bounce.y', 1);
     bullets.setAll('outOfBoundsKill', true);
     bullets.setAll('checkWorldBounds', true);
-    this.speed = 400;
+    this.speed = 200;
 }
 
 Ship.prototype.update = function() {
     //console.log(this.ship.body.velocity);
-    this.ship.body.x = this.wasd.x;
-    this.ship.body.y = this.wasd.y;
+    refreshXY++
+    if (refreshXY == 20) {
+        this.ship.body.x = this.input.x//this.wasd.x;
+        this.ship.body.y = this.input.y;
+        refreshXY = 0;
+    }
+
     xVel = 0;
     yVel = 0;
-    if (this.wasd.left) {
+    if (this.input.left) {
         xVel -= this.speed
         console.log("left")
     }
-    if (this.wasd.right) {
+    if (this.input.right) {
         xVel += this.speed;
     }
-    if (this.wasd.up) {
+    if (this.input.up) {
         yVel -= this.speed;
     }
-    if (this.wasd.down) {
+    if (this.input.down) {
         yVel += this.speed;
     }
     this.ship.body.velocity.x = xVel;
     this.ship.body.velocity.y = yVel;
+    this.ship.rotation = this.input.rotation;
     if (mouse.isDown) {
         this.shoot(xVel,yVel);
     }
@@ -181,6 +193,7 @@ function create() {
 
 function update() {
     if (!ready) return;
+    //player.ship.body.x = 300;
     for (var i in shipsList) game.physics.arcade.collide(shipsList[i].ship, layer);
     game.time.advancedTiming = true;
     game.physics.arcade.collide(bullets, layer);
@@ -194,32 +207,42 @@ function update() {
     player.input.down = wasd.down.isDown;
     player.input.fire = mouse.isDown;
     player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2
+    player.input.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2
 
-    var inputChanged = (
-        player.wasd.left != player.input.left ||
-        player.wasd.right != player.input.right ||
-        player.wasd.up != player.input.up ||
-        player.wasd.down != player.input.fire ||
-        player.wasd.fire != player.input.fire
-    );
-    //if (inputChanged) {
-        //Handle input change here
-        //send new values to the server
-        //console.log("Updating server");
-            // send latest valid state to the server
-        player.input.x = player.ship.x - (player.ship.width*player.ship.anchor.x*.8);
-        player.input.y = player.ship.y - (player.ship.height*player.ship.anchor.y*.8);
-        player.input.rotation = player.ship.rotation;
-        eurecaServer.handleKeys(player.input);
-        //console.log(player.input);
-    //}
-
-    //for (var i in shipsList) shipsList[i].update();
+    for (var i in shipsList) {
+        var inputChanged = (
+            shipsList[i].wasd.left != shipsList[i].input.left ||
+            shipsList[i].wasd.right != shipsList[i].input.right ||
+            shipsList[i].wasd.up != shipsList[i].input.up ||
+            shipsList[i].wasd.down != shipsList[i].input.down ||
+            shipsList[i].wasd.fire != shipsList[i].input.fire ||
+            shipsList[i].wasd.rotation != shipsList[i].input.rotation
+        );
+        if (inputChanged) {
+            shipsList[i].wasd.left = shipsList[i].input.left;
+            shipsList[i].wasd.right = shipsList[i].input.right;
+            shipsList[i].wasd.up = shipsList[i].input.up;
+            shipsList[i].wasd.down = shipsList[i].input.down;
+            shipsList[i].wasd.fire = shipsList[i].input.fire;
+            shipsList[i].wasd.rotation = shipsList[i].input.rotation;
+            if (i == myId) {
+                player.input.x = player.ship.x - (player.ship.width*player.ship.anchor.x*.8);
+                player.input.y = player.ship.y - (player.ship.height*player.ship.anchor.y*.8);
+                player.input.rotation = player.ship.rotation;
+            } 
+            shipsList[i].update();
+            eurecaServer.handleKeys(player.input);
+        }
+    }
 
         // game.physics.arcade.overlap(player.ship, bullets, function(player,bullet){
         //     player.kill();
         //     bullet.kill();
         // });
+}
+
+function doChange() {
+    player.ship.body.x = 300;
 }
 
 function move_player(plyr) {
