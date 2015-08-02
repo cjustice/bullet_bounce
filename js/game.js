@@ -95,6 +95,7 @@ var ship;
 var shipsList = {};
 var colorList = {};
 var refreshXY = 0;
+var hitBoxSize = 0.6;
 
 function Ship(index, game, player, startX, startY) {
     this.input = {
@@ -139,8 +140,8 @@ function Ship(index, game, player, startX, startY) {
     this.ship.body.collideWorldBounds = true;
     this.ship.body.bounce.setTo(0, 0);
     this.ship.id = index;
-    this.ship.body.height *= .8;
-    this.ship.body.width *= .8;
+    this.ship.body.height *= hitBoxSize;
+    this.ship.body.width *= hitBoxSize;
     this.color = 0;
     //adding player bullets
     bullets = game.add.group();
@@ -210,8 +211,6 @@ function create() {
     game.camera.follow(player.ship);
 }
 
-
-
 function update() {
     if (!ready) return;
     //player.ship.body.x = 300;
@@ -262,34 +261,6 @@ function update() {
         // });
 }
 
-function doChange() {
-    player.ship.body.x = 300;
-}
-
-function move_player(plyr) {
-    xVel = 0;
-    yVel = 0;
-    if (wasd.left.isDown) {
-        xVel -= plyr.speed
-    }
-    if (wasd.right.isDown) {
-        xVel += plyr.speed;
-    }
-    if (wasd.up.isDown) {
-        yVel -= plyr.speed;
-    }
-    if (wasd.down.isDown) {
-        yVel += plyr.speed;
-    }
-
-    plyr.ship.body.velocity.x = xVel;
-    plyr.ship.body.velocity.y = yVel;
-
-    if (mouse.isDown) {
-        plyr.shoot(xVel,yVel);
-    }
-}
-
 Ship.prototype.shoot = function(xVel,yVel) {
     //console.log(xVel + ", " + yVel)
     if (game.time.now > nextFire && bullets.countDead() > 0)
@@ -301,9 +272,12 @@ Ship.prototype.shoot = function(xVel,yVel) {
         radius = 20;
 
         bullet.reset(player.ship.body.center.x,player.ship.body.center.y);
-        //bullet.reset(player.ship.body.x+ 16 + radius*Math.cos(player.ship.rotation - Math.PI/2), player.ship.body.y+16 + radius*Math.sin(player.ship.rotation - Math.PI/2));
+        bullet.body.x += radius*Math.cos(player.ship.rotation - Math.PI/2);
+        bullet.body.y += radius*Math.sin(player.ship.rotation - Math.PI/2);
 
         game.physics.arcade.moveToPointer(bullet, bullet_speed);
+        bullet.body.velocity.x += xVel;
+        bullet.body.velocity.y += yVel;
     }
 }
 
