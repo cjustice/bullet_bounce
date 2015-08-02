@@ -15,6 +15,7 @@ var ship;
 var wasd;
 var curX;
 var curY;
+var xVel,yVel
 
 var ready = false;
 var eurecaServer;
@@ -42,9 +43,11 @@ var eurecaClientSetup = function() {
     //
     eurecaClient.exports.updateState = function(id, state)
     {
+        console.log("updateState: id: "+id+" in "+shipsList);
         if (shipsList[id])  {
             // shipsList[id].wasd = state;
-            //console.log(state.x);
+            console.log(state.x);
+            console.log(shipsList[id].ship.body.velocity);
             shipsList[id].ship.body.velocity.x = state.x;
             shipsList[id].ship.body.velocity.y = state.y;            
             shipsList[id].ship.rotation = state.rotation;
@@ -133,31 +136,36 @@ Ship.prototype.update = function() {
     //for (var i in this.input) this.wasd[i] = this.input[i];
     //console.log(inputChanged);
    // speed = desired_movement / game.time.elapsed;
-    if (inputChanged) {
+    //if (inputChanged) {
+        xVel = 0;
+        yVel = 0;
         if (this.ship.id == myId) {
+            speed = (desired_movement);
             if (this.input.left) {
                 //this.ship.body.x -= speed;
-                this.posVars.x -= 5;
+                xVel -= speed;
                 //console.log(this.posVars);
             }
             if (this.input.right) {
                 //this.ship.body.x += speed;
-                this.posVars.x += 5;
+                xVel += speed;
                 //console.log(this.posVars);
             }
             if (this.input.up) {
-                this.posVars.y -= 5;
+                yVel -= speed;
             }
             if (this.input.down) {
-                this.posVars.y += 5;
+                yVel += speed;
             }
+            this.posVars.x = xVel;
+            this.posVars.y = yVel;
         }
         this.posVars.rotation = this.ship.rotation;
         //console.log("ID + " + myId);
        // console.log(this.posVars);
 
-    eurecaServer.handleKeys(this.posVars);
-    }
+        eurecaServer.handleKeys(this.posVars);
+    //}
     //this.posVars.angle = this.ship.body.angle;
 }
 
@@ -198,9 +206,10 @@ function create() {
 function update() {
     if (ready) { 
         game.time.advancedTiming = true;
+        move_players();
         angle = game.math.angleBetween(mouse.x - game.camera.x,mouse.y-game.camera.y, ship.body.x, ship.body.y)
         ship.rotation = angle;
-        move_players();
+        //move_players();
     }
 }
 
@@ -215,7 +224,6 @@ function move_players() {
     player.input.down = wasd.down.isDown;
     for (var i in shipsList) {
         if (!shipsList[i]) continue;
-        var curShip = shipsList[i].ship;
         shipsList[i].update();
     }
 }
