@@ -12,9 +12,10 @@ var eurecaClientSetup = function() {
     
     //methods defined under "exports" namespace become available in the server side
     
-    eurecaClient.exports.setId = function(id) 
+    eurecaClient.exports.setId = function(id, colors) 
     {
         //create() is moved here to make sure nothing is created before uniq id assignation
+        colorList = colors;
         myId = id;
         create();
         eurecaServer.handshake();
@@ -29,8 +30,9 @@ var eurecaClientSetup = function() {
         }
     }   
     
-    eurecaClient.exports.spawnEnemy = function(i, x, y)
+    eurecaClient.exports.spawnEnemy = function(i, x, y, colors)
     {
+        colorList = colors;
         if (i == myId) return; //this is me
         console.log("New enemy at "+x+", "+y);
         console.log('SPAWN');
@@ -67,10 +69,13 @@ function preload() {
     game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
     game.load.image('shipblue','assets/sprites/blob-blue.png');
+    game.load.image('shipred','assets/sprites/blob-red.png');
+    game.load.image('shipgreen','assets/sprites/blob-green.png');
+    game.load.image('shippurple','assets/sprites/blob-purple.png');
     game.load.image('bullet', 'assets/sprites/bullet-blue.png');
 }
 
-var debug = true;
+var debug = false;
 
 var map;
 var layer;
@@ -88,7 +93,7 @@ var xVel,yVel;
 var wasd;
 var ship;
 var shipsList = {};
-
+var colorList = {};
 var refreshXY = 0;
 
 function Ship(index, game, player, startX, startY) {
@@ -110,9 +115,24 @@ function Ship(index, game, player, startX, startY) {
     };
     this.game = game;
     this.player = player;
-    var x = startX;
-    var y = startY;
-    this.ship = game.add.sprite(x,y,'shipblue');
+    this.x = startX;
+    this.y = startY;
+    //this.ship = game.add.sprite(x,y,'shipblue');
+    switch(colorList[index]) {
+        case 0:
+            this.ship = game.add.sprite(this.x,this.y,'shipblue');
+            break;
+        case 1:
+            this.ship = game.add.sprite(this.x,this.y,'shipred');
+            break;
+        case 2:
+            this.ship = game.add.sprite(this.x,this.y,'shipgreen');
+            break;
+        case 3:
+            this.ship = game.add.sprite(this.x,this.y,'shippurple');
+            break;
+        default: console.log("TOOOOOO MANY PLAYERS!");
+    }
     game.physics.enable(this.ship, Phaser.Physics.ARCADE);
     this.ship.anchor.set(0.5);
     this.ship.body.immovable = false;
@@ -121,6 +141,7 @@ function Ship(index, game, player, startX, startY) {
     this.ship.id = index;
     this.ship.body.height *= .8;
     this.ship.body.width *= .8;
+    this.color = 0;
     //adding player bullets
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -265,38 +286,9 @@ function move_player(plyr) {
     plyr.ship.body.velocity.y = yVel;
 
     if (mouse.isDown) {
-        //console.log ("shoot!");
         plyr.shoot(xVel,yVel);
     }
-    //plyr.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
 }
-
-// function move_players() {
-//     //speed = 400;
-//     xVel = 0;
-//     yVel = 0;
-//     if (wasd.left.isDown) {
-//         xVel -= player.speed
-//     }
-//     if (wasd.right.isDown) {
-//         xVel += player.speed;
-//     }
-//     if (wasd.up.isDown) {
-//         yVel -= player.speed;
-//     }
-//     if (wasd.down.isDown) {
-//         yVel += player.speed;
-//     }
-
-//     player.ship.body.velocity.x = xVel;
-//     player.ship.body.velocity.y = yVel;
-
-//     if (mouse.isDown) {
-//         //console.log ("shoot!");
-//         player.shoot(xVel,yVel);
-//     }
-//     player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2;
-// }
 
 Ship.prototype.shoot = function(xVel,yVel) {
     //console.log(xVel + ", " + yVel)
