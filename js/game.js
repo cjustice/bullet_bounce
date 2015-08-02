@@ -127,13 +127,13 @@ function move_player() {
     player.ship.body.velocity.y = yVel;
 
     if (mouse.isDown) {
-        console.log ("shoot!");
-        shoot(xVel,yVel);
+        //console.log ("shoot!");
+        player.shoot(xVel,yVel);
     }
 
 }
 
-function shoot(xVel,yVel) {
+Ship.prototype.shoot = function(xVel,yVel) {
     //console.log(xVel + ", " + yVel)
     if (game.time.now > nextFire && bullets.countDead() > 0)
     {   
@@ -147,10 +147,6 @@ function shoot(xVel,yVel) {
         //bullet.reset(player.ship.body.x+ 16 + radius*Math.cos(player.ship.rotation - Math.PI/2), player.ship.body.y+16 + radius*Math.sin(player.ship.rotation - Math.PI/2));
 
         game.physics.arcade.moveToPointer(bullet, bullet_speed);
-        //bullet.body.velocity.x += xVel;
-        //bullet.body.velocity.y += yVel;
-        // bullet.body.bounce.x = 1;
-        // bullet.body.bounce.y = 1;
     }
 }
 
