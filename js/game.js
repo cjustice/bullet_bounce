@@ -151,7 +151,6 @@ Ship.prototype.update = function() {
         this.ship.body.y = this.input.y;
         refreshXY = 0;
     }
-
     xVel = 0;
     yVel = 0;
     if (this.input.left) {
