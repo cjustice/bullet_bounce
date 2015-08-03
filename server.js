@@ -42,26 +42,10 @@ eurecaServer.onConnect(function (conn) {
 	mostRecentConnId = conn.id;
 });
 
+
 //detect client disconnection
 eurecaServer.onDisconnect(function (conn) {    
     console.log('Client disconnected ', conn.id);
-	
-	var removeId = clients[conn.id].id;
-	
-	delete clients[conn.id];
-	availableColors.push(colorList[conn.id]);
-	delete colorList[conn.id];
-
-	for (var c in clients)
-	{
-		var remote = clients[c].remote;
-		
-		//here we call kill() method defined in the client side
-		remote.kill(conn.id);
-	}	
-});
-
-eurecaServer.exports.handshake = function() {
 	if (clients[conn.id]) {
 		var removeId = clients[conn.id].id;
 	
@@ -77,7 +61,7 @@ eurecaServer.exports.handshake = function() {
 			remote.kill(conn.id);
 		}
 	}
-};
+});
 
 eurecaServer.exports.killPlayer = function(id) {
 	delete clients[id]

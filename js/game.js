@@ -60,7 +60,7 @@ var eurecaClientSetup = function() {
 var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload() {
-    game.load.tilemap('map', 'assets/tilemaps/maps/small_square.json', null, Phaser.Tilemap.TILED_JSON)
+    game.load.tilemap('map', 'assets/tilemaps/maps/firstplay.json', null, Phaser.Tilemap.TILED_JSON)
     game.load.image('first_tiles_1x1', 'assets/tilemaps/tiles/first_tiles_1x1.png');
     game.load.image('background','assets/tests/debug-grid-1920x1920.png');
     game.load.image('shipblue','assets/sprites/blob-blue.png');
