@@ -56,7 +56,7 @@ var eurecaClientSetup = function() {
 
 }
 
-var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: eurecaClientSetup, update: update, render: render });
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'bullet-bounce', { preload: preload, create: eurecaClientSetup, update: update, render: render });
 
 function preload() {
     game.load.tilemap('map', 'assets/tilemaps/maps/firstplay.json', null, Phaser.Tilemap.TILED_JSON)
@@ -285,7 +285,7 @@ Ship.prototype.shoot = function(xVel,yVel) {
         //bullet.reset(this.ship.body.center.x,this.ship.body.center.y);
         
         //console.log(bullet)
-        bullet.reset(this.ship.body.x+ 16 + radius*Math.cos(this.ship.rotation - Math.PI/2), this.ship.body.y+16 + radius*Math.sin(this.ship.rotation - Math.PI/2));
+        bullet.reset(this.ship.body.x+ (16*hitBoxSize) + radius*Math.cos(this.ship.rotation - Math.PI/2), this.ship.body.y+(16*hitBoxSize) + radius*Math.sin(this.ship.rotation - Math.PI/2));
 
         //game.physics.arcade.moveToPointer(bullet, bullet_speed);
         bullet.body.velocity.x = bullet_speed*Math.cos(this.ship.rotation - Math.PI/2) + xVel;
