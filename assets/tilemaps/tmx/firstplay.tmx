@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="32" tileheight="32" nextobjectid="1">
+ <tileset firstgid="1" name="testtiles_1x1" tilewidth="32" tileheight="32">
+  <image source="../bullet_bounce/assets/tilemaps/tiles/first_tiles_1x1.png" width="800" height="32"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="30" height="30">
+  <data encoding="base64" compression="zlib">
+   eJzt1kEOgCAMRNGi97+zK6MxFL62WiSdpDuc5wbSIiIlaEhWeI6cTfffbi/pHkZtls5YXZKz0+qo/Z+ne6fH4lq6PN29L8KlGc31vKuzu+RbzSW7gvY+WVwS4mo7zRsu2Z9Gu0dfudZd86nr0ZNuulc3YjbXjQD/
+  </data>
+ </layer>
+</map>
