@@ -78,7 +78,7 @@ var player;
 var myId = 0;
 var cursors;
 var bullets;
-var fireRate = 100;
+var fireRate = 1000;
 var nextFire = 0;
 var currentSpeed = 0;
 var angle = 0;
@@ -173,6 +173,39 @@ Ship.prototype.update = function() {
     }
 }
 
+EnemyShip = function (index, game, player, bullets) {
+
+    var x = game.world.randomX;
+    var y = game.world.randomY;
+
+    this.game = game;
+    this.health = 1;
+    this.player = player;
+    this.bullets = bullets;
+    this.fireRate = 1000;
+    this.nextFire = 0;
+    this.alive = true;
+
+    this.shadow = game.add.sprite(x, y, 'enemy', 'shadow');
+    this.tank = game.add.sprite(x, y, 'enemy', 'tank1');
+    this.turret = game.add.sprite(x, y, 'enemy', 'turret');
+
+    this.shadow.anchor.set(0.5);
+    this.tank.anchor.set(0.5);
+    this.turret.anchor.set(0.3, 0.5);
+
+    this.tank.name = index.toString();
+    game.physics.enable(this.tank, Phaser.Physics.ARCADE);
+    this.tank.body.immovable = false;
+    this.tank.body.collideWorldBounds = true;
+    this.tank.body.bounce.setTo(1, 1);
+
+    this.tank.angle = game.rnd.angle();
+
+    game.physics.arcade.velocityFromRotation(this.tank.rotation, 100, this.tank.body.velocity);
+
+};
+
 function create() {
     game.stage.disableVisibilityChange  = true;
     map = game.add.tilemap('map');
@@ -221,7 +254,13 @@ function update() {
     player.input.right = wasd.right.isDown;
     player.input.up = wasd.up.isDown;
     player.input.down = wasd.down.isDown;
-    player.input.fire = mouse.isDown;
+    if (mouse.isDown && game.time.now > nextFire && bullets.countDead() > 0 && player.ship.alive)
+    {   
+        nextFire = game.time.now + fireRate;
+        player.input.fire = true;
+    }
+    else
+        player.input.fire = false;   
     player.ship.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2
     player.input.rotation = game.physics.arcade.angleToPointer(player.ship) + Math.PI/2
 
@@ -269,9 +308,6 @@ function update() {
 }
 
 Ship.prototype.shoot = function(xVel,yVel) {
-    if (game.time.now > nextFire && bullets.countDead() > 0 && this.ship.alive)
-    {   
-        nextFire = game.time.now + fireRate;
 
         var bullet = bullets.getFirstExists(false);
 
@@ -280,7 +316,7 @@ Ship.prototype.shoot = function(xVel,yVel) {
         //bullet.reset(this.ship.body.center.x,this.ship.body.center.y);
         
         //console.log(bullet)
-        bullet.reset(this.ship.body.x+ 16 + radius*Math.cos(this.ship.rotation - Math.PI/2), this.ship.body.y+16 + radius*Math.sin(this.ship.rotation - Math.PI/2));
+        bullet.reset(this.ship.body.x+ (16*hitBoxSize) + radius*Math.cos(this.ship.rotation - Math.PI/2), this.ship.body.y+ (16*hitBoxSize) + radius*Math.sin(this.ship.rotation - Math.PI/2));
 
         //game.physics.arcade.moveToPointer(bullet, bullet_speed);
         bullet.body.velocity.x = bullet_speed*Math.cos(this.ship.rotation - Math.PI/2) + xVel;
@@ -291,7 +327,6 @@ Ship.prototype.shoot = function(xVel,yVel) {
         //console.log("movement!")
         //console.log(bullet.x+", "+bullet.y)
         //console.log(bullets);
-    }
 }
 
 function render() {
