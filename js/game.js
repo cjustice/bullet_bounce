@@ -78,12 +78,12 @@ var player;
 var myId = 0;
 var cursors;
 var bullets;
-var fireRate = 1000;
+var fireRate = 500;
 var nextFire = 0;
 var currentSpeed = 0;
 var angle = 0;
-var bullet_speed = 300;
-var speed = 0;
+var bullet_speed = 200;
+var speed = 200;
 var xVel,yVel;
 var wasd;
 var ship;
@@ -91,6 +91,7 @@ var shipsList = {};
 var colorList = {};
 var refreshXY = 0;
 var hitBoxSize = 0.6;
+var playerToBulletSpeed = 0.5;
 
 function Ship(index, game, player, startX, startY) {
     this.input = {
@@ -139,7 +140,7 @@ function Ship(index, game, player, startX, startY) {
     this.ship.body.height *= hitBoxSize;
     this.ship.body.width *= hitBoxSize;
     this.color = 0;
-    this.speed = 200;
+    this.speed = speed;
 }
 
 Ship.prototype.update = function() {
@@ -325,8 +326,8 @@ Ship.prototype.shoot = function(xVel,yVel) {
         bullet.reset(this.ship.body.x+ (16*hitBoxSize) + radius*Math.cos(this.ship.rotation - Math.PI/2), this.ship.body.y+(16*hitBoxSize) + radius*Math.sin(this.ship.rotation - Math.PI/2));
 
         //game.physics.arcade.moveToPointer(bullet, bullet_speed);
-        bullet.body.velocity.x = bullet_speed*Math.cos(this.ship.rotation - Math.PI/2) + xVel;
-        bullet.body.velocity.y = bullet_speed*Math.sin(this.ship.rotation - Math.PI/2) + yVel;
+        bullet.body.velocity.x = bullet_speed*Math.cos(this.ship.rotation - Math.PI/2) + (xVel*playerToBulletSpeed);
+        bullet.body.velocity.y = bullet_speed*Math.sin(this.ship.rotation - Math.PI/2) + (yVel*playerToBulletSpeed);
         //console.log("movement?")
         // bullet.x += radius*Math.cos(this.ship.rotation - Math.PI/2);
         // bullet.y += radius*Math.sin(this.ship.rotation - Math.PI/2);
